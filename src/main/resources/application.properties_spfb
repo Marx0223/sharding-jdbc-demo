@@ -1,0 +1,30 @@
+# sharding-jdbc 水平分表策略
+# 配置数据源，给数据源起别名
+spring.shardingsphere.datasource.names=db1
+
+# 一个实体类对应两张表，覆盖
+spring.main.allow-bean-definition-overriding=true
+
+# 配置数据源的具体内容，包含连接池，驱动，地址，用户名，密码
+spring.shardingsphere.datasource.db1.type=com.alibaba.druid.pool.DruidDataSource
+spring.shardingsphere.datasource.db1.driver-class-name=com.mysql.cj.jdbc.Driver
+#spring.shardingsphere.datasource.db1.url=jdbc:mysql://localhost:3306/course_db?serverTimezone=GMT%2B8
+#spring.shardingsphere.datasource.db1.username=root
+#spring.shardingsphere.datasource.db1.password=123456
+spring.shardingsphere.datasource.db1.url=jdbc:mysql://rm-bp119f05ug9z24073782.mysql.rds.aliyuncs.com/kids_data_report?useUnicode=true&autoReconnect=true&rewriteBatchedStatements=TRUE&zeroDateTimeBehavior=convertToNull
+spring.shardingsphere.datasource.db1.username=report_dw
+spring.shardingsphere.datasource.db1.password=0hTAOaph1mau8GPddjuv
+
+# 指定course表分布的情况，配置表在哪个数据库里，表的名称都是什么 db1.course_1,db1.course_2
+spring.shardingsphere.sharding.tables.course.actual-data-nodes=db1.course_$->{1..2}
+
+# 指定 course 表里面主键 cid 的生成策略 SNOWFLAKE
+spring.shardingsphere.sharding.tables.course.key-generator.column=cid
+spring.shardingsphere.sharding.tables.course.key-generator.type=SNOWFLAKE
+
+# 配置分表策略    约定 cid 值偶数添加到 course_1 表，如果 cid 是奇数添加到 course_2 表
+spring.shardingsphere.sharding.tables.course.table-strategy.inline.sharding-column=cid
+spring.shardingsphere.sharding.tables.course.table-strategy.inline.algorithm-expression=course_$->{cid % 2 + 1}
+
+# 打开 sql 输出日志
+spring.shardingsphere.props.sql.show=true
